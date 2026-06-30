@@ -50,3 +50,24 @@ div {
     margin-top: 20px;
 }
 
+.campo input.valid,
+.campo textarea.valid {
+    border-color: #27ae60;
+    background: #f0fff4;
+}
+
+.campo input.invalid,
+.campo textarea.invalid {
+    border-color: #e74c3c;
+    background: #fff5f5;
+}
+
+.error-message {
+    font-size: 0.8rem;
+    color: #e74c3c;
+}
+
+.success-message {
+    font-size: 0.8rem;
+    color: #27ae60;
+}
