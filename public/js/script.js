@@ -1,124 +1,201 @@
-const form = document.getElementById('miForm');
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('registrationForm');
 
-form.addEventListener('submit', function (evento) {
-    evento.preventDefault()
+    const username = document.getElementById('username');
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirmPassword');
 
-    const Nombre = document.getElementById('Nombre').value;
-    const Email = document.getElementById('Email').value;
-    const Contra = document.getElementById('Contrasena').value;
+    const submitButton = document.getElementById('submitButton');
+    
 
-    const errorNombre = document.getElementById('errorNombre');
-    const errorEmail = document.getElementById('errorEmail');
-    const errorContrasena = document.getElementById('errorContrasena');
+    const usernameError = document.getElementById('usernameError');
+    const emailError = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+    const confirmPasswordError = document.getElementById('confirmPasswordError');
+    const successMessage = document.getElementById('successMessage');
 
-    if (Nombre == '') {
-        errorNombre.textContent = 'El campo nombre no puede estar vacio.';
-    } else if (Nombre.length < 2) {
-        errorNombre.textContent = 'Sabemos que tu nombre tiene más de una letra, ponlo bien Por favor.';
-    } else if (Nombre.length > 30) {
-        errorNombre.textContent = 'Creo que nadie tiene un nombre de más de 30 caracteres, corrigelo Por Favor.';
-    } else {
-        errorNombre.textContent = '';
-    }
 
-    if (Email == '') {
-        errorEmail.textContent = 'El campo email no puede estar vacio.';
-    } else if (!Email.includes('@') || !Email.includes('.')) {
-        errorEmail.textContent = 'Por favor verifica el formato de el correo, algo@gmail.com';
-    } else if (Email.includes(' ')) {
-        errorEmail.textContent = 'Por favor verifica que no haya espacios';
-    } else {
-        errorEmail.textContent = '';
-    }
 
-    const simbolos = "!$%&/()=?¡¨*]Ñ¨[Ñ_:;:.,.Ñ[_]¨¨*";
-    let tieneSimbolos = false;
 
-    for (let simbolo of simbolos) {
-        if (Contra.includes(simbolo)) {
-            tieneSimbolos = true;
-            break;
+    const validationRules = {
+        username: /^[a-zA-Z0-9]{6,}$/,
+        email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+    };
+
+
+
+
+    function validateUsername() {
+        const value = username.value;
+        if (validationRules.username.test(value)) {
+            username.classList.add('valid');
+            username.classList.remove('invalid');
+            checkAvailability(value, 'username');
+        } else {
+            username.classList.add('invalid');
+            username.classList.remove('valid');
+            usernameError.classList.add('error-message');
+            usernameError.classList.remove('success-message');
+            usernameError.textContent = 'El nombre de usuario debe tener al menos 6 caracteres y no contener caracteres especiales.';
+            
         }
+        checkFormValidity();
     }
 
-    if (Contra == '') {
-        errorContrasena.textContent = 'La contraseña no puede estar vacia';
-    } else if (Contra.length < 6) {
-        errorContrasena.textContent = 'La contraseña debe tener al menos 6 caracteres';
-    } else if (tieneSimbolos == false) {
-        errorContrasena.textContent = 'La contraseña debe incluir al menos un simbolo especial';
-    } else {
-        errorContrasena.textContent = '';
+
+    function validateEmail() {
+        const value = email.value;
+        if (validationRules.email.test(value)) {
+            email.classList.add('valid');
+            email.classList.remove('invalid');
+            checkAvailability(value, 'email');
+        } else {
+            email.classList.add('invalid');
+            email.classList.remove('valid');
+            emailError.classList.add('error-message');
+            emailError.classList.remove('success-message');
+            emailError.textContent = 'La dirección de correo electrónico no es válida.';
+        }
+        checkFormValidity();
     }
 
-    if (errorNombre.textContent == '' && errorEmail.textContent == '' && errorContrasena.textContent == '') {
 
-        const datosUsuario = {
-            nombre: Nombre,
-            email: Email,
-            contrasena: Contra
-        };
+    function validatePassword() {
+        const value = password.value;
+        if (validationRules.password.test(value)) {
+            password.classList.add('valid');
+            password.classList.remove('invalid');
+            passwordError.textContent = '';
+        } else {
+            password.classList.add('invalid');
+            password.classList.remove('valid');
+            passwordError.textContent = 'La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una letra minúscula y un número.';
+        }
+        validateConfirmPassword();
+        checkFormValidity();
+    }
 
-        fetch('/guardar-datos', {
+
+    function validateConfirmPassword() {
+        if (confirmPassword.value === password.value) {
+            confirmPassword.classList.add('valid');
+            confirmPassword.classList.remove('invalid');
+            confirmPasswordError.textContent = '';
+        } else {
+            confirmPassword.classList.add('invalid');
+            confirmPassword.classList.remove('valid');
+            confirmPasswordError.textContent = 'Las contraseñas no coinciden.';
+        }
+        checkFormValidity();
+    }
+
+    
+    function checkAvailability(value, type) {
+        fetch('http://localhost:3000/check-availability', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(datosUsuario)
+            body: JSON.stringify({ type, value })
         })
-            .then(respuesta => respuesta.json())
-            .then(datosRespuesta => {
-                console.log('Servidor responde: ', datosRespuesta);
-                alert('¡Formulario enviado con exito!');
-                form.reset();
-            })
-            .catch(error => {
-                console.error('Error al enviar: ', error);
-                alert('Hubo un problema al enviar los datos.');
-            })
+        .then(response => response.json())
+        .then(data => {
+
+            if (type === 'username') {
+                usernameError.textContent = data.available ? 'Nombre de usuario disponible.' : 'Nombre de usuario no disponible.';
+                if (data.available) {
+                    username.classList.add('valid');
+                    username.classList.remove('invalid');
+
+                    usernameError.classList.add('success-message')
+                    usernameError.classList.remove('error-message')
+                } else {
+                    username.classList.add('invalid');
+                    username.classList.remove('valid');
+
+                    usernameError.classList.add('error-message')
+                    usernameError.classList.remove('success-message')
+                }
+
+
+
+
+            } else if (type === 'email') {
+                emailError.textContent = data.available ? 'Correo electrónico disponible.' : 'Correo electrónico no disponible.';
+                if (data.available) {
+                    email.classList.add('valid');
+                    email.classList.remove('invalid');
+
+                    emailError.classList.add('success-message');
+                    emailError.classList.remove('error-message');
+                    
+                } else {
+                    email.classList.add('invalid');
+                    email.classList.remove('valid');
+
+                    emailError.classList.add('error-message');
+                    emailError.classList.remove('success-message');
+                }
+            }
+            checkFormValidity();
+        })
+        .catch(error => console.error('Error:', error));
     }
-});
 
-const btnCargar = document.getElementById('btnCargar');
-const contenedorDatos = document.getElementById('contenedorDatos');
+    function checkFormValidity() {
+        const isFormValid = username.classList.contains('valid') &&
+                            email.classList.contains('valid') &&
+                            password.classList.contains('valid') &&
+                            confirmPassword.classList.contains('valid');
+        submitButton.disabled = !isFormValid;
+    }
 
-btnCargar.addEventListener('click', function () {
 
-    fetch('/cargar-ultimo')
-        .then(respuesta => respuesta.json())
-        .then(info => {
 
-            while (contenedorDatos.firstChild) {
-                contenedorDatos.removeChild(contenedorDatos.firstChild);
-            }
 
-            if (info.datos) {
+    
+    username.addEventListener('input', validateUsername);
+    email.addEventListener('input', validateEmail);
+    password.addEventListener('input', validatePassword);
+    confirmPassword.addEventListener('input', validateConfirmPassword);
 
-                const tarjeta = document.createElement('div');
-                const titulo = document.createElement('h3');
-                const textoEmail = document.createElement('p');
 
-                titulo.textContent = `Nombre: ${info.datos.nombre}`;
-                textoEmail.textContent = `Email: ${info.datos.email}`;
 
-                tarjeta.style.border = '2px solid #333';
-                tarjeta.style.padding = '15px';
-                tarjeta.style.marginTop = '20px';
-                tarjeta.style.borderRadius = '8px';
-                tarjeta.style.backgroundColor = '#f9f9f9';
-                tarjeta.style.color = '#000000';
 
-                tarjeta.append(titulo, textoEmail);
 
-                contenedorDatos.appendChild(tarjeta);
-            } else {
-                const mensajeVacio = document.createElement('p');
-                mensajeVacio.textContent = info.mensaje;
-                contenedorDatos.appendChild(mensajeVacio);
-            }
-        })
-        .catch(error => {
-            console.error('Error al traer los datos:', error);
-            alert('Hubo un problema de conexion al buscar el ultimo registro.');
-        });
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        validateUsername();
+        validateEmail();
+        validatePassword();
+        validateConfirmPassword();
+        if (submitButton.disabled === false) {
+            fetch('http://localhost:3000/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: username.value,
+                    email: email.value,
+                    password: password.value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    successMessage.textContent = '¡Registro exitoso!';
+                    successMessage.style.display = 'block';
+                } else {
+                    successMessage.textContent = data.message || 'Error en el registro.';
+                    successMessage.style.display = 'block';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    });
 });

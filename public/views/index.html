@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulario</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div>
@@ -12,28 +12,28 @@
     </div>
 
     <div>
-        <form id="miForm">
+        <form id="registrationForm">
             <div>
-                <label for="Nombre"> Nombre </label>
-                <input id="Nombre" placeholder="Escribe tu Nombre">
-                <span id="errorNombre" class="error"></span>
+                <label for="username"> Nombre </label>
+                <input type="text" id="username" placeholder="Escribe tu Nombre" required>
+                <span class="error-message" id="usernameError"></span>
             </div>
 
             <div>
-                <label for="Email"> Email </label>
-                <input id="Email" placeholder="Escribe tu direccion Email">
-                <span id="errorEmail" class="error"></span>
+                <label for="email"> Email </label>
+                <input type="text" id="email" placeholder="Escribe tu direccion Email">
+                <span class="error-message" id="emailError"></span>
             </div>
 
             <div>
-                <label for="Contrasena"> Contraseña </label>
-                <input id="Contrasena" placeholder="Escribe tu contraseña">
-                <span id="errorContrasena" class="error"></span>
+                <label for="password"> Contraseña </label>
+                <input type="password" id="password" placeholder="Escribe tu contraseña" required>
+                <span class="error-message" id="passwordError"></span>
             </div>
 
             <div>
-                <button type="submit" id="enviarForm"> Guardar</button>
-                <span id="errorBoton" class="error"></span>
+                <button type="submit" id="submitButton"> Guardar</button>
+                <div id="successMessage" class="success-message"></div>
             </div>
         </form>
     </div>
@@ -43,7 +43,6 @@
             <button id="btnCargar">Cargar ultima informacion</button>
             <div id="contenedorDatos"></div>
         </div>
-
-    <script src="script.js"></script>
+    <script src="js/script.js"></script>
 </body>
 </html>

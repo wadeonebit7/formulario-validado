@@ -10,7 +10,6 @@ const port = 3000;
 
 app.use(bodyParser.json());
 app.use(cors());
-app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -67,7 +66,54 @@ app.get('/cargar-ultimo', (req, res) => {
     });
 });
 
+app.post('/check-availability', (req, res) => {
+    const { type, value } = req.body;
+    let query = '';
+    if (type === 'username') {
+        query = 'SELECT * FROM usuarios WHERE nombre = ?';
+    } else if (type === 'email') {
+        query = 'SELECT * FROM usuarios WHERE email = ?';
+    }
+    db.query(query, [value], (err, results) => {
+        if (err) throw err;
+        res.json({ available: results.length === 0 });
+    });
+});
+
+app.post('/register', async (req, res) => {
+    const { username, email, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10); // Hashear la contraseña
+    const query = 'INSERT INTO usuarios (nombre, email, contrasena) VALUES (?, ?, ?)';
+    db.query(query, [username, email, hashedPassword], (err, results) => {
+        if (err) {
+            if (err.code === 'ER_DUP_ENTRY') {
+                return res.status(409).json({ success: false, message: 'Usuario o correo electrónico ya existente' });
+            }
+            throw err;
+        }
+        res.json({ success: true });
+    });
+});
+
+app.get("/ultimo", (req, res)=>{
+
+        const sql = `SELECT * FROM usuarios ORDER BY id DESC LIMIT 1`;
+
+        db.query(sql, (err, result) => {
+
+            if(err) return res.status(500).json({ mensaje:"Error" });
+            
+            if (result.length === 0) {
+                return res.json({ vacio: true });
+            }
+            
+            res.json(result[0]);
+        });
+    });
+
 app.listen(port, () => {
     console.log(`Servidor corriendo en http://localhost:${port}`)
 });
+
+
 

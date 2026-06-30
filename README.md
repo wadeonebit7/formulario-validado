@@ -1,7 +1,6 @@
 ```sql
-CREATE DATABASE FormularioValidado;
-
-USE FormularioValidado;
+CREATE DATABASE actividades_clases;
+USE actividades_clases;
 
 CREATE TABLE usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
