@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div>
+        <h2> Formulario de registro </h2>
+    </div>
+
+    <div>
+        <form id="miForm">
+            <div>
+                <label for="Nombre"> Nombre </label>
+                <input id="Nombre" placeholder="Escribe tu Nombre">
+                <span id="errorNombre" class="error"></span>
+            </div>
+
+            <div>
+                <label for="Email"> Email </label>
+                <input id="Email" placeholder="Escribe tu direccion Email">
+                <span id="errorEmail" class="error"></span>
+            </div>
+
+            <div>
+                <label for="Contrasena"> Contraseña </label>
+                <input id="Contrasena" placeholder="Escribe tu contraseña">
+                <span id="errorContrasena" class="error"></span>
+            </div>
+
+            <div>
+                <button type="submit" id="enviarForm"> Guardar</button>
+                <span id="errorBoton" class="error"></span>
+            </div>
+        </form>
+    </div>
+
+    <hr>
+        <div>
+            <button id="btnCargar">Cargar ultima informacion</button>
+            <div id="contenedorDatos"></div>
+        </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
