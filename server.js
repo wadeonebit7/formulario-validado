@@ -1,13 +1,19 @@
 const express = require('express');
 const mysql = require('mysql2');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const path = require('path');
+const bcrypt = require('bcrypt'); // Para hashear contraseñas
+
 const app = express();
 const port = 3000;
 
-
+app.use(bodyParser.json());
+app.use(cors());
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(express.json());
 
 const db = mysql.createConnection({
     host: 'localhost',
@@ -25,7 +31,7 @@ db.connect((error) => {
 });
 
 app.get('/', (req, res) => {
-    res.render('index');
+    res.sendFile(path.join(__dirname, '/public/views', 'index.html'));
 });
 
 app.post('/guardar-datos', (req, res) => {
