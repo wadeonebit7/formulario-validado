@@ -1,5 +1,7 @@
+
+
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('registrationForm');
+    const form = document.getElementById('formulario');
 
     const username = document.getElementById('username');
     const email = document.getElementById('email');
@@ -14,6 +16,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const passwordError = document.getElementById('passwordError');
     const confirmPasswordError = document.getElementById('confirmPasswordError');
     const successMessage = document.getElementById('successMessage');
+
+       const btnCargar = document.getElementById("btnCargar");
+    const ultimoRegistro = document.getElementById("ultimoRegistro");
 
 
 
@@ -77,20 +82,6 @@ document.addEventListener('DOMContentLoaded', function() {
         checkFormValidity();
     }
 
-
-    function validateConfirmPassword() {
-        if (confirmPassword.value === password.value) {
-            confirmPassword.classList.add('valid');
-            confirmPassword.classList.remove('invalid');
-            confirmPasswordError.textContent = '';
-        } else {
-            confirmPassword.classList.add('invalid');
-            confirmPassword.classList.remove('valid');
-            confirmPasswordError.textContent = 'Las contraseñas no coinciden.';
-        }
-        checkFormValidity();
-    }
-
     
     function checkAvailability(value, type) {
         fetch('http://localhost:3000/check-availability', {
@@ -147,8 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function checkFormValidity() {
         const isFormValid = username.classList.contains('valid') &&
                             email.classList.contains('valid') &&
-                            password.classList.contains('valid') &&
-                            confirmPassword.classList.contains('valid');
+                            password.classList.contains('valid');
         submitButton.disabled = !isFormValid;
     }
 
@@ -159,43 +149,67 @@ document.addEventListener('DOMContentLoaded', function() {
     username.addEventListener('input', validateUsername);
     email.addEventListener('input', validateEmail);
     password.addEventListener('input', validatePassword);
-    confirmPassword.addEventListener('input', validateConfirmPassword);
 
 
-
-
-
-
-    form.addEventListener('submit', function(event) {
-        event.preventDefault();
-        
+    form.addEventListener("submit", async e =>{
+        e.preventDefault(); // Evita que el formulario se envíe de la manera tradicional
+        // Validar los campos antes de enviar
         validateUsername();
         validateEmail();
         validatePassword();
-        validateConfirmPassword();
-        if (submitButton.disabled === false) {
-            fetch('http://localhost:3000/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    username: username.value,
-                    email: email.value,
-                    password: password.value
+
+        if (btnSubmit.disabled === false) {
+            const respuesta = await fetch("/guardar",{
+                method:"POST",
+                headers:{ "Content-Type": "application/json" },
+                body:JSON.stringify({
+                    nombre: nombre.value,
+                    correo: correo.value,
+                    contrasena: contrasena.value
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    successMessage.textContent = '¡Registro exitoso!';
-                    successMessage.style.display = 'block';
-                } else {
-                    successMessage.textContent = data.message || 'Error en el registro.';
-                    successMessage.style.display = 'block';
-                }
-            })
-            .catch(error => console.error('Error:', error));
+            });
+
+            const dato = await respuesta.json(); // Respuesta del servidor
+
+            alert(dato.mensaje); // Mostramos el mensaje como alerta
+            
+            if (dato.mensaje === "Guardado correctamente") {
+
+                formulario.reset(); // Limpiamos los campos
+
+                [nombre, correo, contrasena].forEach(input => {
+                    input.classList.remove('valid', 'invalid');
+                });
+                [statusnombre, statuscorreo, statuscontrasena, ultimoRegistro].forEach(status => {
+                    status.textContent = '';
+                    status.classList.remove('error-message', 'success-message');
+                });
+
+                btnSubmit.disabled = true;
+            }
         }
+    });
+
+    btnCargar.addEventListener("click", async () => {
+        const respuesta = await fetch("/ultimo");
+        const dato = await respuesta.json();
+
+        while( ultimoRegistro.firstChild){
+            ultimoRegistro.removeChild(ultimoRegistro.firstChild);
+        }
+
+        const p = document.createElement("p");
+        
+        if (!dato || dato.vacio) {
+            p.textContent = "No hay registros disponibles.";
+            p.classList.add('error-message'); p.classList.remove('success-message');
+        } else {
+            p.textContent = `Ultimo registro cargado`;
+            p.classList.add('success-message'); p.classList.remove('error-message');
+            nombre.value = dato.nombre;
+            correo.value = dato.correo;
+            comentario.value = dato.comentario;
+        }
+        ultimoRegistro.appendChild(p);
     });
 });

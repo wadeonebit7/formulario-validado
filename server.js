@@ -80,36 +80,51 @@ app.post('/check-availability', (req, res) => {
     });
 });
 
-app.post('/register', async (req, res) => {
-    const { username, email, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10); // Hashear la contraseña
-    const query = 'INSERT INTO usuarios (nombre, email, contrasena) VALUES (?, ?, ?)';
-    db.query(query, [username, email, hashedPassword], (err, results) => {
-        if (err) {
-            if (err.code === 'ER_DUP_ENTRY') {
-                return res.status(409).json({ success: false, message: 'Usuario o correo electrónico ya existente' });
+app.post("/guardar", (req, res)=>{
+
+        const {nombre, correo, contrasena} = req.body;
+
+        const sql = `INSERT INTO usuarios (nombre, correo, contrasena) VALUES (?,?,?)`;
+
+        db.query(sql, [nombre, correo, contrasena], (err, result) => {
+
+                if(err){
+
+                    return res.status(500).json({
+                        mensaje:"Error al guardar"
+                    });
+
+                }
+
+                req.app.get("io").emit("nuevoComentario",{
+                    nombre,
+                    correo,
+                    comentario
+                });
+
+                res.json({
+                    mensaje:"Guardado correctamente"
+                });
             }
-            throw err;
+        );
+    });
+
+app.get('/cargar-ultimo', (req, res) => {
+    const query = 'SELECT * FROM usuarios ORDER BY id DESC LIMIT 1';
+
+    db.query(query, (error, resultado) => {
+        if(error) {
+            console.error('Error al buscar en la bd:', error);
+            return res.status(500).json({ error: 'Error al obtener los datos'});
         }
-        res.json({ success: true });
+
+        if(resultado.length == 0) {
+            return res.json({ mensaje: 'No hay usuarios guardados aun', datos: null});
+        }
+
+        res.json({ mensaje: 'Ultimo usuario encontrado', datos: resultado[0]});
     });
 });
-
-app.get("/ultimo", (req, res)=>{
-
-        const sql = `SELECT * FROM usuarios ORDER BY id DESC LIMIT 1`;
-
-        db.query(sql, (err, result) => {
-
-            if(err) return res.status(500).json({ mensaje:"Error" });
-            
-            if (result.length === 0) {
-                return res.json({ vacio: true });
-            }
-            
-            res.json(result[0]);
-        });
-    });
 
 app.listen(port, () => {
     console.log(`Servidor corriendo en http://localhost:${port}`)
