@@ -11,8 +11,14 @@ body {
     justify-content: center;
     min-height: 100vh;
     font-family: Arial, Helvetica, sans-serif;
-    background-color: #ffffffff;
-    color:#00000000;
+    background-color: #121214; /* Fondo oscuro elegante */
+    color: #ffffff; /* Texto blanco visible */
+    padding: 20px;
+}
+
+h2 {
+    margin-bottom: 10px;
+    color: #e50914; /* Rojo estilo cine/Netflix */
 }
 
 form {
@@ -22,23 +28,43 @@ form {
     width: 100%;
     max-width: 400px;
     padding: 20px;
-    border: 1px solid #00000000;
+    border: 1px solid #333;
+    background-color: #1a1a1e;
+    border-radius: 8px;
 }
 
 input, button {
-    padding: 8px;
+    padding: 10px;
     font-size: 16px;
-    border: 1px solid #ccc;
+    border: 1px solid #444;
+    border-radius: 4px;
+    background-color: #2a2a30;
+    color: #fff;
+}
+
+input:focus {
+    outline: none;
+    border-color: #e50914;
 }
 
 button {
     cursor: pointer;
     margin-top: 10px;
+    background-color: #e50914;
+    color: white;
+    font-weight: bold;
+    border: none;
+    transition: background 0.2s;
 }
 
-span {
-    color: red;
-    font-size: 14px;
+button:hover {
+    background-color: #b80710;
+}
+
+span.error {
+    color: #ff4a4a;
+    font-size: 13px;
+    margin-top: 2px;
 }
 
 div {
@@ -47,27 +73,18 @@ div {
     align-items: center;
     width: 100%;
     max-width: 400px;
-    margin-top: 20px;
 }
 
-.campo input.valid,
-.campo textarea.valid {
-    border-color: #27ae60;
-    background: #f0fff4;
+.tarjeta-usuario {
+    border: 2px solid #e50914 !important;
+    background-color: #1a1a1e !important;
+    color: white !important;
 }
 
-.campo input.invalid,
-.campo textarea.invalid {
-    border-color: #e74c3c;
-    background: #fff5f5;
-}
-
-.error-message {
-    font-size: 0.8rem;
-    color: #e74c3c;
-}
-
-.success-message {
-    font-size: 0.8rem;
-    color: #27ae60;
+hr {
+    width: 100%;
+    max-width: 400px;
+    margin: 25px 0;
+    border: 0;
+    border-top: 1px solid #333;
 }
