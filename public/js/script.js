@@ -4,24 +4,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('formulario');
 
     const username = document.getElementById('username');
+    const usernameError = document.getElementById('usernameError');
+
     const email = document.getElementById('email');
+    const emailError = document.getElementById('emailError');
+
     const password = document.getElementById('password');
-    const confirmPassword = document.getElementById('confirmPassword');
+    const passwordError = document.getElementById('passwordError');
 
     const submitButton = document.getElementById('submitButton');
-    
-
-    const usernameError = document.getElementById('usernameError');
-    const emailError = document.getElementById('emailError');
-    const passwordError = document.getElementById('passwordError');
-    const confirmPasswordError = document.getElementById('confirmPasswordError');
     const successMessage = document.getElementById('successMessage');
 
-       const btnCargar = document.getElementById("btnCargar");
+    const btnCargar = document.getElementById("btnCargar");
     const ultimoRegistro = document.getElementById("ultimoRegistro");
-
-
-
 
     const validationRules = {
         username: /^[a-zA-Z0-9]{6,}$/,
@@ -49,7 +44,6 @@ document.addEventListener('DOMContentLoaded', function() {
         checkFormValidity();
     }
 
-
     function validateEmail() {
         const value = email.value;
         if (validationRules.email.test(value)) {
@@ -66,7 +60,6 @@ document.addEventListener('DOMContentLoaded', function() {
         checkFormValidity();
     }
 
-
     function validatePassword() {
         const value = password.value;
         if (validationRules.password.test(value)) {
@@ -78,10 +71,8 @@ document.addEventListener('DOMContentLoaded', function() {
             password.classList.remove('valid');
             passwordError.textContent = 'La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una letra minúscula y un número.';
         }
-        validateConfirmPassword();
         checkFormValidity();
     }
-
     
     function checkAvailability(value, type) {
         fetch('http://localhost:3000/check-availability', {
@@ -109,9 +100,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     usernameError.classList.add('error-message')
                     usernameError.classList.remove('success-message')
                 }
-
-
-
 
             } else if (type === 'email') {
                 emailError.textContent = data.available ? 'Correo electrónico disponible.' : 'Correo electrónico no disponible.';
@@ -142,30 +130,26 @@ document.addEventListener('DOMContentLoaded', function() {
         submitButton.disabled = !isFormValid;
     }
 
-
-
-
-    
     username.addEventListener('input', validateUsername);
     email.addEventListener('input', validateEmail);
     password.addEventListener('input', validatePassword);
 
 
-    form.addEventListener("submit", async e =>{
-        e.preventDefault(); // Evita que el formulario se envíe de la manera tradicional
+    form.addEventListener('submit', async function(event) {
+        event.preventDefault(); // Evita que el formulario se envíe de la manera tradicional
         // Validar los campos antes de enviar
         validateUsername();
         validateEmail();
         validatePassword();
 
-        if (btnSubmit.disabled === false) {
+        if (submitButton.disabled === false) {
             const respuesta = await fetch("/guardar",{
                 method:"POST",
                 headers:{ "Content-Type": "application/json" },
                 body:JSON.stringify({
-                    nombre: nombre.value,
-                    correo: correo.value,
-                    contrasena: contrasena.value
+                    nombre: username.value,
+                    email: email.value,
+                    contrasena: password.value
                 })
             });
 
@@ -177,15 +161,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 formulario.reset(); // Limpiamos los campos
 
-                [nombre, correo, contrasena].forEach(input => {
+                [username, email, password].forEach(input => {
                     input.classList.remove('valid', 'invalid');
                 });
-                [statusnombre, statuscorreo, statuscontrasena, ultimoRegistro].forEach(status => {
+                [usernameError, emailError, passwordError].forEach(status => {
                     status.textContent = '';
                     status.classList.remove('error-message', 'success-message');
                 });
 
-                btnSubmit.disabled = true;
+                submitButton.disabled = true;
             }
         }
     });
@@ -198,18 +182,27 @@ document.addEventListener('DOMContentLoaded', function() {
             ultimoRegistro.removeChild(ultimoRegistro.firstChild);
         }
 
-        const p = document.createElement("p");
-        
-        if (!dato || dato.vacio) {
-            p.textContent = "No hay registros disponibles.";
-            p.classList.add('error-message'); p.classList.remove('success-message');
+        if (!dato.datos) {
+            const mensajeVacio = document.createElement('p');
+            mensajeVacio.textContent = dato.mensaje;
+            ultimoRegistro.appendChild(mensajeVacio);
         } else {
-            p.textContent = `Ultimo registro cargado`;
-            p.classList.add('success-message'); p.classList.remove('error-message');
-            nombre.value = dato.nombre;
-            correo.value = dato.correo;
-            comentario.value = dato.comentario;
+            const tarjeta = document.createElement('div');
+            const titulo = document.createElement('h3');
+            const textoEmail = document.createElement('p');
+
+            tarjeta.style.border = '1px solid #333';
+            tarjeta.style.padding = '20px';
+            tarjeta.style.marginTop = '20px';
+            tarjeta.style.borderRadius = '8px';
+            tarjeta.style.backgroundColor = '#1a1a1e';
+            tarjeta.style.color = '#ffffff';
+
+            titulo.textContent = `Nombre: ${dato.datos.nombre}`;
+            textoEmail.textContent = `Email: ${dato.datos.email}`;
+
+            tarjeta.append(titulo, textoEmail);
+            ultimoRegistro.appendChild(tarjeta);
         }
-        ultimoRegistro.appendChild(p);
     });
 });
